@@ -1,0 +1,38 @@
+
+body {
+    padding-top: 0.2em;
+    text-align: center;
+    min-height: 100%;
+}
+
+h1 {
+    font-weight: bold;
+    font-size: 300%;
+}
+
+.trunc {
+    max-width: 75%;
+    margin: 0 auto;
+}
+
+.escondido {
+    display: none;
+}
+
+.toplinks {
+    font-size: 120%;
+    line-height: 2em;
+}
+
+.form-control {
+    display: inline-block !important;
+    width: auto !important;
+}
+
+.err, #err {
+    color: red;
+}
+
+.nicegreen, .success, #success {
+    color: #319C0C;
+}
