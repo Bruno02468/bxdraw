@@ -8,31 +8,63 @@
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
         <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.0.4/jscolor.min.js"></script>
         <link rel="stylesheet" href="./bxdraw.css">
     </head>
     <body>
-        <h1>bxdraw - draw with friends</h1>
-        <br>
         <div class="lead trunc" id="gate">
+            <h1>bxdraw - draw with friends</h1>
+            <br>
             I created this because I wanted drawing with friends to be fast,
             simple, easy, and free.<br>
             <br>
             And I like coding, so that's a plus.<br>
             <br>
-            In order to join, pick a username and a room:<br>
+            In order to join, pick a nickname and a room:<br>
             <br>
-            <code>~ Bruno "Bruno02468" Borges Paschoalinoto</code>
+            <code>
+                Coded by Bruno "Bruno02468" Borges Paschoalinoto.<br>
+                All the code is GPLv3, available
+                <a href="https://github.com/Bruno02468/bxdraw">
+                    here
+                </a>, free, fore free, forever.
+                Users online: <span id="gateCount"></span>
+            </code>
             <br>
             <br>
             <form onsubmit="return doGate()">
                 <input type="text" class="form-control" id="username"
-                placeholder="Username"><br>
+                placeholder="Nickname" value="bruno"><br>
                  <br>
                  <input type="text" class="form-control" id="room"
-                 placeholder="Room"><br>
+                 placeholder="Room" value="main"><br>
                  <br>
                 <input type="submit" class="btn btn-success" id="go" value="Go!">
-            </form>
+              </form><br>
+              <div id="err"></div><br>
+              <br>
+        </div>
+        <div id="draw">
+            <div id="topbar">
+                <span id="roominfo">bxdraw: room </span>
+                <span id="colorpicker">
+                    Color: 
+                    <input id="picker" class="jscolor {hash:true} form-control"
+                    value="#000" onchange="updateColor()">           
+                </span>
+                <span id="radiuschoose">
+                    Radius:
+                    <input type="range" min="1" id="radius"
+                    oninput="updateRadius()">
+                    <canvas id="radiuscanvas"></canvas>
+                </span>
+                <span id="clear">
+                    <button class="btn btn-sm btn-primary" onclick="clearCanvas()">
+                        Clear everything (just for you)
+                    </button>
+                </span>
+            </div>
+            <div id="canvasHolder"><canvas id="canvas"></canvas></div>
         </div>
         <script src="./gate.js"></script>
         <script src="./draw.js"></script>

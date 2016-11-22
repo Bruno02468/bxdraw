@@ -15,19 +15,17 @@ var room = null;
 var username = null;
 
 // when a user joins, update the user count
-socket.on("usercount" function(msg) {
-    if (drawing) {
-        $("#drawingCount").html(msg["usercount"]);
-    } else {
-        $("#gateCount").html(msg["usercount"]);
-    }
+socket.on("usercount", function(msg) {
+    $("#drawingCount").html(msg["usercount"]);
+    $("#gateCount").html(msg["usercount"]);
 });
 
 // called when the user tries to join a room and get drawing
 function doGate() {
+    if (drawing) return;
     var args = {
-        "username": $("$username").val(),
-        "room": $("room").val()
+        "username": $("#username").val(),
+        "room": $("#room").val()
     };
     room = args["room"];
     username = args["username"];
@@ -43,6 +41,7 @@ socket.on("gate", function(result) {
         $("#err").html(result["message"]);
     } else {
         // oh yeah, let's delegate it to the other script.
+        drawing = true;
         getDrawing();
     }
 });

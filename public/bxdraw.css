@@ -7,7 +7,7 @@ body {
 
 h1 {
     font-weight: bold;
-    font-size: 300%;
+    font-size: 225%;
 }
 
 .trunc {
@@ -15,13 +15,8 @@ h1 {
     margin: 0 auto;
 }
 
-.escondido {
+#draw {
     display: none;
-}
-
-.toplinks {
-    font-size: 120%;
-    line-height: 2em;
 }
 
 .form-control {
@@ -33,6 +28,37 @@ h1 {
     color: red;
 }
 
-.nicegreen, .success, #success {
-    color: #319C0C;
+#topbar {
+    background-color: rgba(200, 200, 200, 0.6);
+    width: 100%;
+    padding: 5px;
+    top: 0px;
+    left: 0px;
+    position: fixed;
+    text-align: left;
+    vertical-align: middle;
+}
+
+#roominfo {
+    font-weight: bold;
+    font-size: 200%;
+    display: inline-block;
+}
+
+#colorpicker {
+    display: inline-block;
+}
+
+#radius {
+    display: inline-block;
+    width: auto;
+    vertical-align: middle;
+}
+
+#radiuscanvas {
+    vertical-align: middle;
+}
+
+#canvas {
+    cursor: crosshair;
 }
