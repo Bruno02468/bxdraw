@@ -62,3 +62,26 @@ h1 {
 #canvas {
     cursor: crosshair;
 }
+
+#cursorsWrapper {
+    width: 0;
+    height: 0;
+}
+
+.cursor {
+    position: absolute;
+    font-size: 75%;
+    display: inline-block;
+    cursor: crosshair;
+}
+
+.cursor-img:first-child {
+    background-color: rgba(0, 0, 0, 0);
+    transform: rotate(90deg);
+    padding-right: 0.3em;
+}
+
+.cursor-text {
+    background-color: rgba(200, 200, 200, 0.5);
+    display: inline-block;
+}

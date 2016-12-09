@@ -18,6 +18,8 @@ var username = null;
 socket.on("usercount", function(msg) {
     $("#drawingCount").html(msg["usercount"]);
     $("#gateCount").html(msg["usercount"]);
+    if ($("#username").val() == "")
+        $("#username").val("user" + (msg["usercount"]+1))
 });
 
 // called when the user tries to join a room and get drawing

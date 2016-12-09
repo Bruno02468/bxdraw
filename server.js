@@ -24,7 +24,7 @@ app.get("/bxdraw.css", function(req, res){
 });
 
 app.get("/favicon.ico", function(req, res){
-    res.sendFile(__dirname + "/favicon.ico");
+    res.sendFile(__dirname + "/public/favicon.ico");
 });
 
 app.get("/gate.js", function(req, res){
@@ -69,8 +69,6 @@ function usercount(sock) {
 
 // handling events
 io.on("connection", function(socket) {
-    debugLog("A user connected!");
-
     // tell 'em how many users we got
     usercount(socket);
 
@@ -109,6 +107,9 @@ io.on("connection", function(socket) {
             });
             socket.join(room);
             usercount();
+            socket.broadcast.to(room).emit("joined", {
+                "username": username
+            });
             debugLog("User \"" + username + "\" joined room \"" + room
                 + "\"!");
         }
@@ -120,14 +121,33 @@ io.on("connection", function(socket) {
         if (index == -1) return false;
         var user = users[index];
         var room = user["room"]
-        socket.to(room).emit("paint", paint_data);
+        var username = user["username"];
+        paint_data["user"] = username;
+        socket.broadcast.to(room).emit("paint", paint_data);
     });
 
     // user disconnected
-    socket.on("disconnect", function(){
-        debugLog("A user disconnected!");
+    socket.on("disconnect", function() {
         var index = getUserIndexBySocketID(socket.id);
-        users.splice(index, 1);
-        usercount();
+        if (index > -1) {
+            var user = users[index]
+            debugLog("User \"" + user["username"] + "\" disconnected!");
+            io.to(user["room"]).emit("left", {
+                "username": user["username"]
+            });
+            users.splice(index, 1);
+            usercount();
+        }
+    });
+
+    // user sent cursor position
+    socket.on("cursor", function(point) {
+        var index = getUserIndexBySocketID(socket.id);
+        if (index == -1) return false;
+        var user = users[index];
+        var room = user["room"];
+        var username = user["username"];
+        point["user"] = username;
+        socket.broadcast.to(room).emit("cursor", point);
     });
 });

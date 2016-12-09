@@ -9,6 +9,7 @@ var grid = true;
 var gridSpace = 20;
 var gridWidth = 1;
 var gridColor = "#B2C3F2";
+var cursorInterval = 100;
 
 // painting brush settings
 var color = "#000";
@@ -39,12 +40,15 @@ function getDrawing() {
     context = canvas.get(0).getContext("2d");
     clearCanvas();
     $("#draw").fadeIn();
-	//$("body").css("overflow", "hidden");
-	goToCenter();
-	updateRadius();
+	$("body").css("overflow", "hidden");
+    updateRadius();
+
+    // begin sending cursor
+    setInterval(sendCursor, cursorInterval);
 }
 
 // move the user back to the center of the drawing pad
+// deprecated/unused because it's absolutely useless lol
 function goToCenter() {
     $("body").animate({
         "scrollTop": canvasHeight/2 - $(window).height(),
@@ -108,21 +112,13 @@ $("#canvas").mousedown(function(event) {
 			action = "drag";
 			break;
     }
-	console.log(action);
 	event.preventDefault();
 	return false;
-});
-
-// event handler: the mouse left the canvas.
-$("#canvas").mouseleave(function (e) {
-    action = "none";
-	console.log(action);
 });
 
 // event handler: the mouse button has been released.
 $("#canvas").mouseup(function (e) {
     action = "none";
-	console.log(action);
 });
 
 // store the last position of the cursor
@@ -171,13 +167,14 @@ $("#canvas").contextmenu(function (e) {
 	return false;
 });
 
+// make cursors delegate mouse events to the canvas
+
 // called to stroke paint actions by users
 function strokePaint(obj) {
 	if (obj["radius"] > max_radius) return false;
 	context.beginPath();
 	context.lineJoin = "round";
 	context.beginPath();
-	// single click paint, a line won't do; do a circle instead
 	if (!(obj["ax"] == obj["bx"] && obj["ay"] == obj["by"])) {
 		context.strokeStyle = obj["color"];
 		context.lineWidth = obj["radius"];
@@ -185,10 +182,88 @@ function strokePaint(obj) {
 		context.lineTo(obj["bx"], obj["by"]);
 		context.closePath();
 		context.stroke();
-	}
+    }
+    // it ain't us, so let's move their cursor too
+    if (obj["user"]) {
+        setCursor({
+            "x": obj["bx"],
+            "y": obj["by"],
+            "user": obj["user"]
+        }, true);
+    }
 }
 
 // someone else drew something
 socket.on("paint", function(data) {
 	strokePaint(data);
 });
+
+// store the last sent positions so you don't send the same position, saves
+// everyone's bandwidth, yay!
+var lastSentX, lastSentY;
+
+// send the cursor information
+function sendCursor() {
+    if (lastx == lastSentX && lasty == lastSentY) return false;
+    if (action !== "none") return false;
+    socket.emit("cursor", {
+        "x": lastx,
+        "y": lasty
+    });
+    lastSentX = lastx;
+    lastSentY = lasty;
+}
+
+// used to delegate events to the canvas
+function delegator(ev) { $("#canvas").trigger(ev); }
+
+// create cursor element for new user
+function addCursor(user) {
+    // add the element the good ol' way
+    $("#cursorsWrapper").append("<div class=\"cursor\" id=\"cursor_" + user 
+        + "\"><div class=\"cursor-img glyphicon glyphicon-pencil\"></div>"
+        + "<div class=\"cursor-text\">" + user + "</div>");
+    // save us some typing
+    var cursor = $("#cursor_" + user);
+    cursor.mousedown(delegator);
+    cursor.mouseup(delegator);
+    cursor.mousemove(delegator);
+    cursor.contextmenu(delegator);
+    cursor.blur(function(e) { 
+        e.preventDefault();
+        e.stopPropagation();
+    });
+}
+
+// create/move a cursor element to their rightful place
+function setCursor(data, instant) {
+    var user = data["user"];
+    var cursor = $("#cursor_" + user);
+    if (!cursor.length) addCursor(user);
+    var xpos = data["x"] - 2;
+    var ypos = data["y"] + 2;
+    if (instant) {
+        // came from a draw function, so delay is not necessary
+        cursor.css("top", ypos);
+        cursor.css("left", xpos);
+    } else {
+        // came from the periodic sendCursor, so animation makes it
+        // smooth and pleasing to the eyes
+        cursor.animate({
+            "top": ypos,
+            "left": xpos
+        }, cursorInterval - 50);
+    }
+}
+
+// listen for cursor events, and feed them into the function above
+socket.on("cursor", setCursor);
+
+// delete someone's cursor element
+function removeCursor(data) {
+    var user = data["username"];
+    $("#cursor_" + user).remove();
+}
+
+// user left our room, delete their cursor element to save memory
+socket.on("left", removeCursor);

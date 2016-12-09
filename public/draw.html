@@ -10,6 +10,8 @@
         <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.0.4/jscolor.min.js"></script>
         <link rel="stylesheet" href="./bxdraw.css">
+        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+        <link rel="icon" href="/favicon.ico" type="image/x-icon">
     </head>
     <body>
         <div class="lead trunc" id="gate">
@@ -34,7 +36,7 @@
             <br>
             <form onsubmit="return doGate()">
                 <input type="text" class="form-control" id="username"
-                placeholder="Nickname" value="bruno"><br>
+                placeholder="Nickname" value=""><br>
                  <br>
                  <input type="text" class="form-control" id="room"
                  placeholder="Room" value="main"><br>
@@ -63,8 +65,13 @@
                         Clear everything (just for you)
                     </button>
                 </span>
+                <span id="usercount">
+                    Online users:
+                    <span id="drawingCount"></span>
+                </span>
             </div>
             <div id="canvasHolder"><canvas id="canvas"></canvas></div>
+            <div id="cursorsWrapper"></div>
         </div>
         <script src="./gate.js"></script>
         <script src="./draw.js"></script>
