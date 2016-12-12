@@ -41,6 +41,12 @@
                  <input type="text" class="form-control" id="room"
                  placeholder="Room" value="main"><br>
                  <br>
+                 <label for="gridCheck" class="form-inline">
+                     <input type="checkbox" class="form-control"
+                     id="gridCheck" checked>
+                     Enable grid
+                 </label><br>
+                 <br>
                 <input type="submit" class="btn btn-success" id="go" value="Go!">
               </form><br>
               <div id="err"></div><br>
@@ -70,7 +76,8 @@
                     <span id="drawingCount"></span>
                 </span>
             </div>
-            <div id="canvasHolder"><canvas id="canvas"></canvas></div>
+            <div id="tileHolder"></div>
+            <div id="backgroundHolder"><canvas id="backgrounder"></canvas></div>
             <div id="cursorsWrapper"></div>
         </div>
         <script src="./gate.js"></script>
