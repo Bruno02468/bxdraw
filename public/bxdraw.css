@@ -68,6 +68,10 @@ h1 {
     z-index: -1;
 }
 
+form input[type="text"] {
+    min-width: 30%;
+}
+
 #tileHolder canvas {
     cursor: crosshair;
     padding: 0;
