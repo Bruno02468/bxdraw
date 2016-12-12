@@ -53,8 +53,8 @@ function getDrawing() {
             tile.mousedown(handler_mousedown);
             tile.mouseup(handler_mouseup);
             tile.mousemove(handler_mousemove);
-            tile.contextmenu(handler_contextmenu);
-            tile.blur(handler_blur);
+            tile.contextmenu(event_eater);
+            tile.select(event_eater);
         }
     }
 
@@ -216,13 +216,8 @@ function handler_mousemove(e) {
 	e.stopPropagation();
 }
 
-// event handler: trap the context menu.
-function handler_contextmenu(e) {
-    e.preventDefault();
-	return false;
-}
-
-function handler_blur(e) {
+// event handler: pretend it never happened
+function event_eater(e) {
     e.preventDefault();
     e.stopPropagation();
     return false;
@@ -235,7 +230,7 @@ function strokePaint(obj) {
 	if (obj["radius"] > max_radius) return false;
     var tile_before = $("#" + obj["tile_before"]);
     var tile_after = $("#" + obj["tile_after"]);
-    // both events happened on the same tile, thank god this gon't be easy
+    // both events happened on the same tile, thank god this gon' be easy
     if (obj["tile_before"] == obj["tile_after"]) {
         var context = contexts[obj["tile_after"]];
         context.beginPath();
@@ -324,11 +319,15 @@ function sendCursor() {
     lastSentY = lasty;
 }
 
-// FIXME: cursors cause trouble when clicked again, tiles made delegating
-// FIXME: the events a not-so-simple-anymore sort of task.
-
-// used to delegate events to the canvas
-// function delegator(ev) { $("#canvas").trigger(ev); }
+// used to delegate events to the tiles, makes cursor elements not interfere
+// with the drawing but still show "in front" of them
+function delegator(ev) { 
+    var tile_x = Math.ceil(ev.pageX / tileSize);
+    var tile_y = Math.ceil(ev.pageY / tileSize);
+    var tile = $("#tile_" + tile_x + "_" + tile_y);
+    ev.target = tile.get(0);
+    tile.trigger(ev);
+}
 
 // create cursor element for new user
 function addCursor(user) {
@@ -338,15 +337,11 @@ function addCursor(user) {
         + "<div class=\"cursor-text\">" + user + "</div>");
     // save us some typing
     var cursor = $("#cursor_" + user);
-    // check the above FIXME
-    // cursor.mousedown(delegator);
-    // cursor.mouseup(delegator);
-    // cursor.mousemove(delegator);
-    // cursor.contextmenu(delegator);
-    cursor.blur(function(e) { 
-        e.preventDefault();
-        e.stopPropagation();
-    });
+    cursor.mousedown(delegator);
+    cursor.mouseup(delegator);
+    cursor.mousemove(delegator);
+    cursor.contextmenu(event_eater);
+    cursor.select(event_eater)
 }
 
 // create/move a cursor element to their rightful place
