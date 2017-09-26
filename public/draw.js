@@ -3,13 +3,15 @@
 // what this does: the stuff when you're drawing.
 
 // some variables related to the drawing setting
-var tileSize = 200;
-var tilesHorizontal = 10;
-var tilesVertical = 10;
+var tileSize = 1000;
+var tilesHorizontal = 2;
+var tilesVertical = 2;
 var grid = null;
+var black = null;
 var gridSpace = 20;
 var gridWidth = 1;
 var gridColor = "#B2C3F2";
+var darkColor = "#121212";
 var cursorInterval = 100;
 
 // painting brush settings
@@ -36,6 +38,12 @@ function getDrawing() {
 	$("#radius").attr("max", max_radius);
 
     grid = $("#gridCheck").is(":checked");
+    black = $("#blackCheck").is(":checked");
+
+    if (black) {
+        $("#picker").val("#FFFFFF");
+        updateColor();
+    }
 	
     // set up the tiles
     for (var tileX = 1; tileX <= tilesHorizontal; tileX++) {
@@ -99,7 +107,12 @@ function clearCanvas() {
     for (var index in contexts) {
         if (!contexts.hasOwnProperty(index)) continue;
         var context = contexts[index];
-        context.clearRect(0, 0, tileSize, tileSize);
+        if (black) {
+            context.fillStyle = darkColor;
+            context.fillRect(0, 0, tileSize, tileSize)
+        } else {
+            context.clearRect(0, 0, tileSize, tileSize);
+        }
         if (grid) {
             var dim = Math.max(tilesHorizontal, tilesVertical) * tileSize;
             for (var k = 0; k <= dim; k += gridSpace) {
@@ -168,6 +181,33 @@ var oldry = null;
 // keep track of the last tile we were on
 var last_tile = null;
 
+var arrow_left = 37;
+var arrow_up = 38;
+var arrow_right = 39;
+var arrow_down = 40;
+var step = 50;
+
+function scrollRight(len) {
+    $("body").scrollLeft($("body").scrollLeft() + len);
+}
+function scrollDown(len) {
+    $("body").scrollTop($("body").scrollTop() + len);
+}
+
+// event handler for keys
+function handler_keydown(e) {
+    if (e.keyCode == arrow_left) {
+        scrollRight(-step);
+    } else if (e.keyCode == arrow_right) {
+        scrollRight(step);
+    } else if (e.keyCode == arrow_up) {
+        scrollDown(-step);
+    } else if (e.keyCode == arrow_down) {
+        scrollDown(step);
+    }
+}
+$(document).keydown(handler_keydown);
+
 // event handler: the mouse has moved.
 function handler_mousemove(e) {
     var tileid = e.target.id;
@@ -180,12 +220,14 @@ function handler_mousemove(e) {
     var relativeY = ypos - offset.top;
     if (action == "drag") {
         // right click means we're dragging
-		if (xpos == lastx && ypos == lasty) return false;
-		if (xpos == oldx && ypos == oldy) return false;
-		var sctop = $("body").scrollTop();
-		var scleft = $("body").scrollLeft();
-		$("body").scrollTop(sctop + lasty - ypos);
-		$("body").scrollLeft(scleft + lastx - xpos);
+        //if (xpos == lastx && ypos == lasty) return false;
+        //if (xpos == oldx && ypos == oldy) return false;
+        //var sctop = $("body").scrollTop();
+        //var scleft = $("body").scrollLeft();
+        //$("body").scrollTop(sctop + lasty - ypos);
+        //$("body").scrollLeft(scleft + lastx - xpos);
+        scrollRight(oldy - lasty);
+        scrollDown$(oldx - lastx);
     } else if (action == "paint") {
         // left click means paint
         var paint_info = {
