@@ -5,5 +5,10 @@
     "dependencies": {
  	    "express": "^4.10.2",
 	    "socket.io": "^1.2.1"
-    }
+    },
+	"repository": {
+	  "type": "git",
+	  "url": "git://github.com/Bruno02468/bxdraw.git"
+	},
+	"license": "GPL-3.0"
 }
