@@ -3,7 +3,7 @@
     "version": "0.0.1",
     "description": "Multi-user real-time drawing made simple",
     "dependencies": {
-         "express": "^4.10.2",
+        "express": "^4.10.2",
         "socket.io": "^1.2.1"
     },
     "repository": {
