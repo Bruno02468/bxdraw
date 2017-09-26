@@ -24,16 +24,6 @@
             <br>
             In order to join, pick a nickname and a room:<br>
             <br>
-            <code>
-                Coded by Bruno "Bruno02468" Borges Paschoalinoto.<br>
-                All the code is GPLv3, available
-                <a href="https://github.com/Bruno02468/bxdraw">
-                    here
-                </a>, free, for free, forever.<br>
-                Users online: <span id="gateCount"></span>
-            </code>
-            <br>
-            <br>
             <form onsubmit="return doGate()">
                 <input type="text" class="form-control" id="username"
                 placeholder="Nickname" value=""><br>
@@ -53,9 +43,17 @@
                  </label><br>
                  <br>
                 <input type="submit" class="btn btn-success" id="go" value="Go!">
-              </form><br>
-              <div id="err"></div><br>
-              <br>
+            </form><br>
+            <div id="err"></div>
+            <code>
+                Coded by Bruno "Bruno02468" Borges Paschoalinoto.<br>
+                All the code is GPLv3, available
+                <a href="https://github.com/Bruno02468/bxdraw">
+                here</a>, free, for free, forever.<br>
+                Users online: <span id="gateCount"></span>
+            </code>
+            <br>
+            <br>
         </div>
         <div id="draw">
             <div id="topbar">
@@ -84,6 +82,10 @@
             <div id="tileHolder"></div>
             <div id="backgroundHolder"><canvas id="backgrounder"></canvas></div>
             <div id="cursorsWrapper"></div>
+            <div id="minimap">
+                <canvas id="minimap_canvas"></canvas>
+                <div id="minimap_screen"></div>
+            </div>
         </div>
         <script src="./gate.js"></script>
         <script src="./draw.js"></script>

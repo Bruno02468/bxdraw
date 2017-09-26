@@ -1,6 +1,5 @@
 
 body {
-    padding-top: 0.2em;
     text-align: center;
     min-height: 100%;
 }
@@ -101,4 +100,25 @@ form input[type="text"] {
 .cursor-text {
     background-color: rgba(200, 200, 200, 0.5);
     display: inline-block;
+}
+
+#minimap {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    background-color: rgba(200, 200, 200, 0.2);
+    display: hidden;
+    border: 3px solid #DDD;
+    opacity: 0.6;
+}
+
+#minimap_screen {
+    position: absolute;
+    display: inline-block;
+    border: 1px solid #FFF;
+}
+
+#minimap_canvas {
+    position: absolute;
+    opacity: 0.6;
 }

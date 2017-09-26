@@ -2,10 +2,11 @@
 // license: gplv3
 // what this does: the stuff when you're drawing.
 
-// some variables related to the drawing setting
-var tileSize = 1000;
-var tilesHorizontal = 2;
-var tilesVertical = 2;
+// some constants
+var tileSize = 3000;
+var tilesHorizontal = 1;
+var tilesVertical = 1;
+var minimap_scale = 1/18;
 var grid = null;
 var black = null;
 var gridSpace = 20;
@@ -13,6 +14,7 @@ var gridWidth = 1;
 var gridColor = "#B2C3F2";
 var darkColor = "#121212";
 var cursorInterval = 100;
+var thumbnailUpdateInterval = 3000;
 
 // painting brush settings
 var color = "#000";
@@ -44,6 +46,21 @@ function getDrawing() {
         $("#picker").val("#FFFFFF");
         updateColor();
     }
+
+    // set up the minimap
+    var minimap = $("#minimap");
+    var dims = {
+        "width": tilesHorizontal*tileSize*minimap_scale,
+        "height": tilesVertical*tileSize*minimap_scale
+    };
+    minimap.css(dims);
+    updateMinimap();
+    unclickable(minimap);
+    var mc = $("#minimap_canvas");
+    unclickable(mc);
+    mc.attr(dims);
+    mc.css({ "left": 0, "top": 0 })
+    minimap.show();
 	
     // set up the tiles
     for (var tileX = 1; tileX <= tilesHorizontal; tileX++) {
@@ -79,7 +96,42 @@ function getDrawing() {
 
     // begin sending cursor
     setInterval(sendCursor, cursorInterval);
+
+    // begin updating the thumbail
+    updateThumbnail();
+    setInterval(updateThumbnail, thumbnailUpdateInterval);
 }
+
+// updates the minimap thumbnail
+var mc = $("#minimap_canvas");
+var mcc = mc.get(0).getContext("2d");
+mcc.globalAlpha = 0.6;
+function updateThumbnail() {
+    for (var tileX = 1; tileX <= tilesHorizontal; tileX++) {
+        for (var tileY = 1; tileY <= tilesVertical; tileY++) {
+            var tileid = "tile_" + tileX + "_" + tileY;
+            var tile = $("#" + tileid);
+            var scaled_xpos = (tileX-1)*tileSize*minimap_scale;
+            var scaled_ypos = (tileY-1)*tileSize*minimap_scale;
+            var scaled_size = minimap_scale*tileSize;
+            mcc.drawImage(tile.get(0), scaled_xpos, scaled_ypos, scaled_size,
+                scaled_size);
+        }
+    }
+}
+
+// update the minimap "screen" thing when we get resized/scrolled
+// also used to initialize the object!
+function updateMinimap() {
+    $("#minimap_screen").css({
+        "width": window.innerWidth*minimap_scale,
+        "height": window.innerHeight*minimap_scale,
+        "top": window.scrollY*minimap_scale,
+        "left": window.scrollX*minimap_scale
+    });
+}
+$(document).scroll(updateMinimap);
+$(window).resize(updateMinimap);
 
 // move the user back to the center of the drawing pad
 // deprecated/unused because it's absolutely useless lol
@@ -187,6 +239,7 @@ var arrow_right = 39;
 var arrow_down = 40;
 var step = 50;
 
+// scrolling functions
 function scrollRight(len) {
     $("body").scrollLeft($("body").scrollLeft() + len);
 }
@@ -227,7 +280,7 @@ function handler_mousemove(e) {
         //$("body").scrollTop(sctop + lasty - ypos);
         //$("body").scrollLeft(scleft + lastx - xpos);
         scrollRight(oldy - lasty);
-        scrollDown$(oldx - lastx);
+        scrollDown(oldx - lastx);
     } else if (action == "paint") {
         // left click means paint
         var paint_info = {
@@ -263,6 +316,16 @@ function event_eater(e) {
     e.preventDefault();
     e.stopPropagation();
     return false;
+}
+
+// makes the element unclickable and delegates its clicks to the canvas
+function unclickable(elem) {
+    elem.mousedown(delegator);
+    elem.mouseup(delegator);
+    elem.mousemove(delegator);
+    elem.contextmenu(event_eater);
+    elem.select(event_eater);
+    elem.show();
 }
 
 // make cursors delegate mouse events to the canvas
@@ -379,11 +442,7 @@ function addCursor(user) {
         + "<div class=\"cursor-text\">" + user + "</div>");
     // save us some typing
     var cursor = $("#cursor_" + user);
-    cursor.mousedown(delegator);
-    cursor.mouseup(delegator);
-    cursor.mousemove(delegator);
-    cursor.contextmenu(event_eater);
-    cursor.select(event_eater)
+    unclickable(cursor);
 }
 
 // create/move a cursor element to their rightful place
