@@ -6,7 +6,7 @@
 var tileSize = 3000;
 var tilesHorizontal = 1;
 var tilesVertical = 1;
-var minimap_scale = 1/18;
+var minimap_scale = 1/20;
 var grid = null;
 var black = null;
 var gridSpace = 20;
@@ -51,13 +51,17 @@ function getDrawing() {
     var minimap = $("#minimap");
     var dims = {
         "width": tilesHorizontal*tileSize*minimap_scale,
-        "height": tilesVertical*tileSize*minimap_scale
+        "height": tilesVertical*tileSize*minimap_scale,
     };
+    dims["width"] += 6;
+    dims["height"] += 6;
     minimap.css(dims);
     updateMinimap();
     unclickable(minimap);
     var mc = $("#minimap_canvas");
     unclickable(mc);
+    dims["width"] -= 6;
+    dims["height"] -= 6;
     mc.attr(dims);
     mc.css({ "left": 0, "top": 0 })
     minimap.show();
@@ -199,13 +203,26 @@ var action = "none";
 
 // event handler: the user pressed a mouse button.
 function handler_mousedown(event) {
-    switch (event.which) {
-		case 1:
-			action = "paint";
-            break;
-        default:
-			action = "drag";
-			break;
+    if (doingImage) {
+        var tileid = event.target.id;
+        var image_info = {
+            "x": lastrx,
+            "y": lastry,
+            "url": $(".pre_img").attr("src"),
+            "tile": tileid
+        };
+        socket.emit("image", image_info);
+        $(".pre_img").remove();
+        doingImage = false;
+    } else {
+        switch (event.which) {
+            case 1:
+                action = "paint";
+                break;
+            default:
+                action = "drag";
+                break;
+        }
     }
 	event.preventDefault();
 	return false;
@@ -271,7 +288,15 @@ function handler_mousemove(e) {
     var offset = tile.offset();
     var relativeX = xpos - offset.left;
     var relativeY = ypos - offset.top;
+    // if we're gonna put an image, move it around
+    if (doingImage) {
+        $(".pre_img").css({
+            "left": xpos,
+            "top": ypos
+        });
+    }
     if (action == "drag") {
+        // FIXME
         // right click means we're dragging
         //if (xpos == lastx && ypos == lasty) return false;
         //if (xpos == oldx && ypos == oldy) return false;
@@ -279,22 +304,22 @@ function handler_mousemove(e) {
         //var scleft = $("body").scrollLeft();
         //$("body").scrollTop(sctop + lasty - ypos);
         //$("body").scrollLeft(scleft + lastx - xpos);
-        scrollRight(oldy - lasty);
-        scrollDown(oldx - lastx);
+        //scrollRight(oldy - lasty);
+        //scrollDown(oldx - lastx);
     } else if (action == "paint") {
-        // left click means paint
+        // left click means paint, or do image
         var paint_info = {
             "tile_before": last_tile,
             "tile_after": tileid,
-			"ax": lastrx,
-			"ay": lastry,
-			"bx": relativeX,
-			"by": relativeY,
-			"color": color,
-			"radius": radius
-		}
-		strokePaint(paint_info);
-		socket.emit("paint", paint_info);
+            "ax": lastrx,
+            "ay": lastry,
+            "bx": relativeX,
+            "by": relativeY,
+            "color": color,
+            "radius": radius
+        }
+        strokePaint(paint_info);
+        socket.emit("paint", paint_info);
     }
     // keeping track of the old absolute positions
     oldx = lastx;
@@ -327,8 +352,6 @@ function unclickable(elem) {
     elem.select(event_eater);
     elem.show();
 }
-
-// make cursors delegate mouse events to the canvas
 
 // called to stroke paint actions by users
 function strokePaint(obj) {
@@ -408,6 +431,15 @@ socket.on("paint", function(data) {
 	strokePaint(data);
 });
 
+// someone else sent an image
+socket.on("image", function(img_data) {
+    var img = new Image;
+    img.src = img_data["url"];
+    var tile = $("#" + img_data["tile"]);
+    var ctx = tile.get(0).getContext("2d");
+    ctx.drawImage(img, img_data["x"], img_data["y"]);
+});
+
 // store the last sent positions so you don't send the same position, saves
 // everyone's bandwidth, yay!
 var lastSentX, lastSentY;
@@ -473,6 +505,37 @@ socket.on("cursor", setCursor);
 function removeCursor(data) {
     var user = data["username"];
     $("#cursor_" + user).remove();
+}
+
+// escape html
+var entityMap = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  "'": "&quot;",
+  "\"": "&#39;",
+  "/": "&#x2F;",
+  "`": "&#x60;",
+  "=": "&#x3D;"
+};
+
+function escape_html (string) {
+  return String(string).replace(/[&<>"'`=\/]/g, function (s) {
+    return entityMap[s];
+  });
+}
+
+var doingImage = false;
+// prepare to send an image
+function doImage() {
+    if (doingImage) return;
+    var url = prompt("Insert the image URL:");
+    if (url) {
+        url = escape_html(url);
+        $("#imageHolder").append("<img src=\"" + url + "\" class=\"pre_img\">");
+        unclickable($(".pre_img"));
+        doingImage = true;
+    }
 }
 
 // user left our room, delete their cursor element to save memory

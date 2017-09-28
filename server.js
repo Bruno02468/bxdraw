@@ -4,7 +4,7 @@
 
 // some constants
 var port = 9999;
-var debug = true;
+var debug = false;
 
 
 // get the libraries
@@ -151,5 +151,14 @@ io.on("connection", function(socket) {
         var username = user["username"];
         point["user"] = username;
         socket.broadcast.to(room).emit("cursor", point);
+    });
+
+    // user sent image
+    socket.on("image", function(image_data) {
+        var index = getUserIndexBySocketID(socket.id);
+        if (index == -1) return false;
+        var user = users[index];
+        var room = user["room"]
+        io.sockets.in(room).emit("image", image_data);
     });
 });

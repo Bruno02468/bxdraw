@@ -104,11 +104,11 @@ form input[type="text"] {
 
 #minimap {
     position: fixed;
-    bottom: 0;
-    right: 0;
+    bottom: 3px;
+    right: 3px;
     background-color: rgba(200, 200, 200, 0.2);
     display: hidden;
-    border: 3px solid #DDD;
+    border: 3px solid #CCC;
     opacity: 0.6;
 }
 
@@ -120,5 +120,12 @@ form input[type="text"] {
 
 #minimap_canvas {
     position: absolute;
+    bottom: 3px;
+    right: 3px;
     opacity: 0.6;
+}
+
+.pre_img {
+    position: absolute;
+    cursor: crosshair;
 }
