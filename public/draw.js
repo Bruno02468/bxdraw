@@ -3,9 +3,9 @@
 // what this does: the stuff when you're drawing.
 
 // some constants
-var tileSize = 3000;
-var tilesHorizontal = 1;
-var tilesVertical = 1;
+var tileSize = 500;
+var tilesHorizontal = 6;
+var tilesVertical = 6;
 var minimap_scale = 1/20;
 var grid = null;
 var black = null;
